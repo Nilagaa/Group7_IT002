@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Sign In</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+
+    /* =====================================================
+       COLORS
+       ===================================================== */
+
+    :root {
+      --bg: #111111;
+      --surface: #1a1a1a;
+      --border: #2e2e2e;
+
+      --text: #f0f0f0;
+      --muted: #666666;
+
+      --accent: #f0f0f0;
+
+      --error: #f87171;
+      --success: #22c55e;
+    }
+
+
+
+    /* =====================================================
+       GENERAL
+       ===================================================== */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: var(--bg);
+      color: var(--text);
+
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+
+
+
+    /* =====================================================
+       LOGIN CARD
+       ===================================================== */
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+
+      padding: 40px;
+
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+
+
+    /* =====================================================
+       PROJECT INFORMATION
+       ===================================================== */
+
+    .project-info {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+
+      border-bottom: 1px solid var(--border);
+
+      text-align: center;
+    }
+
+    .project-code {
+      margin-bottom: 6px;
+
+      color: var(--text);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .project-subject {
+      color: var(--muted);
+
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+
+
+    /* =====================================================
+       TITLE
+       ===================================================== */
+
+    .title {
+      margin-bottom: 30px;
+    }
+
+    .title h1 {
+      margin: 0 0 8px;
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .title p {
+      margin: 0;
+
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+
+
+    /* =====================================================
+       FORM
+       ===================================================== */
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+
+      margin-bottom: 8px;
+
+      color: var(--muted);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+    }
+
+    input {
+      width: 100%;
+
+      padding: 12px;
+
+      background: #111111;
+      border: 1px solid var(--border);
+
+      color: var(--text);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+    }
+
+    input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+
+
+    /* =====================================================
+       LOGIN BUTTON
+       ===================================================== */
+
+    button {
+      width: 100%;
+
+      padding: 12px;
+
+      border: 1px solid var(--accent);
+
+      background: var(--accent);
+      color: #111111;
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      font-weight: 600;
+
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      opacity: 0.85;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+
+
+    /* =====================================================
+       ERROR MESSAGE
+       ===================================================== */
+
+    .error {
+      display: none;
+
+      margin-bottom: 15px;
+
+      color: var(--error);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+
+      line-height: 1.5;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+
+
+    /* =====================================================
+       ATTEMPT COUNTER
+       ===================================================== */
+
+    .attempts {
+      margin-top: 12px;
+
+      color: var(--muted);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+
+      text-align: center;
+    }
+
+    .attempts.locked {
+      color: var(--error);
+    }
+
+    .attempts.unlocked {
+      color: var(--success);
+    }
+
+
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    .footer {
+      margin-top: 25px;
+
+      color: var(--muted);
+
+      font-size: 10px;
+
+      line-height: 1.6;
+
+      text-align: center;
+    }
+
+
+
+    /* =====================================================
+       LOADING TEXT
+       ===================================================== */
+
+    #spinner {
+      display: none;
+    }
+
+  </style>
+</head>
+
+
+
+<body>
+
+
+  <!-- =====================================================
+       LOGIN CARD
+       ===================================================== -->
+
+  <div class="login-card">
+
+
+    <!-- ===================================================
+         PROJECT INFORMATION
+         =================================================== -->
+
+    <div class="project-info">
+
+      <div class="project-code">
+        IT 002 // IT41S3
+      </div>
+
+      <div class="project-subject">
+        Information Assurance and Security 2
+      </div>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         TITLE
+         =================================================== -->
+
+    <div class="title">
+
+      <h1>
+        Sign in
+      </h1>
+
+      <p>
+        Authentication required
+      </p>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         LOGIN FORM
+         =================================================== -->
+
+    <form id="login-form">
+
+
+
+      <!-- USERNAME -->
+
+      <div class="form-group">
+
+        <label for="username">
+          USERNAME
+        </label>
+
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter username"
+          autocomplete="username"
+        >
+
+      </div>
+
+
+
+      <!-- PASSWORD -->
+
+      <div class="form-group">
+
+        <label for="password">
+          PASSWORD
+        </label>
+
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter password"
+          autocomplete="current-password"
+        >
+
+      </div>
+
+
+
+      <!-- ERROR MESSAGE -->
+
+      <div
+        id="error-msg"
+        class="error"
+      ></div>
+
+
+
+      <!-- LOGIN BUTTON -->
+
+      <button
+        type="submit"
+        id="login-btn"
+      >
+
+        <span id="btn-text">
+          Sign In
+        </span>
+
+        <span id="spinner">
+          Signing in...
+        </span>
+
+      </button>
+
+
+
+      <!-- ATTEMPT COUNTER -->
+
+      <div
+        id="attempts-message"
+        class="attempts"
+      ></div>
+
+
+
+    </form>
+
+
+
+    <!-- ===================================================
+         FOOTER
+         =================================================== -->
+
+    <div class="footer">
+
+      Group 7<br>
+
+      Geronimo // Malana // Domingo // Emia // Sumayod
+
+    </div>
+
+
+  </div>
+
+
+
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
+
+  <script>
+
+
+    /* =====================================================
+       LOGIN SETTINGS
+       ===================================================== */
+
+    const VALID_USERNAME = "admin";
+
+    const VALID_PASSWORD = "admin123";
+
+
+    /*
+     * Maximum number of failed attempts.
+     */
+
+    const MAX_ATTEMPTS = 5;
+
+
+    /*
+     * Account lockout duration.
+     *
+     * 30 seconds.
+     */
+
+    const LOCKOUT_TIME = 30 * 1000;
+
+
+
+
+
+    /* =====================================================
+       LOCKOUT DATA
+       ===================================================== */
+
+    let failedAttempts =
+      Number(
+        localStorage.getItem("failed_attempts")
+      ) || 0;
+
+
+    let accountLocked =
+      localStorage.getItem("account_locked") === "true";
+
+
+    let lockoutStartTime =
+      Number(
+        localStorage.getItem("lockout_start_time")
+      ) || 0;
+
+
+
+
+
+    /* =====================================================
+       HTML ELEMENTS
+       ===================================================== */
+
+    const form =
+      document.getElementById("login-form");
+
+    const usernameInput =
+      document.getElementById("username");
+
+    const passwordInput =
+      document.getElementById("password");
+
+    const loginButton =
+      document.getElementById("login-btn");
+
+    const buttonText =
+      document.getElementById("btn-text");
+
+    const spinner =
+      document.getElementById("spinner");
+
+    const errorMessage =
+      document.getElementById("error-msg");
+
+    const attemptsMessage =
+      document.getElementById("attempts-message");
+
+
+
+
+
+    /* =====================================================
+       SAVE LOCKOUT DATA
+       ===================================================== */
+
+    function saveLockoutData() {
+
+      localStorage.setItem(
+        "failed_attempts",
+        failedAttempts
+      );
+
+      localStorage.setItem(
+        "account_locked",
+        accountLocked
+      );
+
+      localStorage.setItem(
+        "lockout_start_time",
+        lockoutStartTime
+      );
+
+    }
+
+
+
+
+
+    /* =====================================================
+       CLEAR LOCKOUT DATA
+       ===================================================== */
+
+    function clearLockoutData() {
+
+      failedAttempts = 0;
+
+      accountLocked = false;
+
+      lockoutStartTime = 0;
+
+
+      localStorage.removeItem(
+        "failed_attempts"
+      );
+
+      localStorage.removeItem(
+        "account_locked"
+      );
+
+      localStorage.removeItem(
+        "lockout_start_time"
+      );
+
+    }
+
+
+
+
+
+    /* =====================================================
+       LOCK ACCOUNT
+
+       THIS IS THE MAIN LOCKOUT FUNCTION.
+
+       After 5 failed attempts:
+
+       1. Account becomes locked
+       2. Login fields are disabled
+       3. Login button is disabled
+       4. 30-second countdown begins
+       ===================================================== */
+
+    function lockAccount() {
+
+      // Mark account as locked
+      accountLocked = true;
+
+
+      // Record lockout start time
+      lockoutStartTime = Date.now();
+
+
+      // Save lockout information
+      saveLockoutData();
+
+
+      // Disable username
+      usernameInput.disabled = true;
+
+
+      // Disable password
+      passwordInput.disabled = true;
+
+
+      // Disable login button
+      loginButton.disabled = true;
+
+
+      // Show lockout message
+      errorMessage.textContent =
+        "Account locked. Too many failed login attempts.";
+
+      errorMessage.classList.add("show");
+
+
+      // Start countdown
+      attemptsMessage.classList.add("locked");
+
+      updateLockoutCountdown();
+
+    }
+
+
+
+
+
+    /* =====================================================
+       UNLOCK ACCOUNT
+
+       Automatically called after 30 seconds.
+       ===================================================== */
+
+    function unlockAccount() {
+
+      // Reset lockout data
+      clearLockoutData();
+
+
+      // Enable username
+      usernameInput.disabled = false;
+
+
+      // Enable password
+      passwordInput.disabled = false;
+
+
+      // Enable login button
+      loginButton.disabled = false;
+
+
+      // Clear password
+      passwordInput.value = "";
+
+
+      // Remove error
+      errorMessage.textContent = "";
+
+      errorMessage.classList.remove("show");
+
+
+      // Show successful unlock message
+      attemptsMessage.classList.remove("locked");
+
+      attemptsMessage.classList.add("unlocked");
+
+      attemptsMessage.textContent =
+        "Account unlocked. You may try again.";
+
+
+      // Return to normal counter after 2 seconds
+      setTimeout(function() {
+
+        attemptsMessage.classList.remove("unlocked");
+
+        updateAttemptsDisplay();
+
+      }, 2000);
+
+    }
+
+
+
+
+
+    /* =====================================================
+       LOCKOUT COUNTDOWN
+       ===================================================== */
+
+    function updateLockoutCountdown() {
+
+      // Stop if account is no longer locked
+      if (!accountLocked) {
+        return;
+      }
+
+
+      // Calculate elapsed time
+      const elapsedTime =
+        Date.now() - lockoutStartTime;
+
+
+      // Calculate remaining time
+      const remainingTime =
+        LOCKOUT_TIME - elapsedTime;
+
+
+      // If countdown reaches zero
+      if (remainingTime <= 0) {
+
+        unlockAccount();
+
+        return;
+      }
+
+
+      // Convert milliseconds to seconds
+      const remainingSeconds =
+        Math.ceil(
+          remainingTime / 1000
+        );
+
+
+      // Display countdown
+      attemptsMessage.textContent =
+        `Account locked. Unlocking in ${remainingSeconds} second(s)...`;
+
+
+      // Run again after 1 second
+      setTimeout(
+        updateLockoutCountdown,
+        1000
+      );
+
+    }
+
+
+
+
+
+    /* =====================================================
+       UPDATE ATTEMPT COUNTER
+       ===================================================== */
+
+    function updateAttemptsDisplay() {
+
+      if (accountLocked) {
+        return;
+      }
+
+
+      const remainingAttempts =
+        MAX_ATTEMPTS - failedAttempts;
+
+
+      attemptsMessage.textContent =
+        `${remainingAttempts} attempt(s) remaining`;
+
+    }
+
+
+
+
+
+    /* =====================================================
+       LOGIN FUNCTION
+       ===================================================== */
+
+    function handleLogin() {
+
+
+      /* ---------------------------------------------------
+         CHECK IF ACCOUNT IS LOCKED
+         --------------------------------------------------- */
+
+      if (accountLocked) {
+
+        updateLockoutCountdown();
+
+        return;
+      }
+
+
+
+
+
+      /* ---------------------------------------------------
+         GET USER INPUT
+         --------------------------------------------------- */
+
+      const username =
+        usernameInput.value.trim();
+
+      const password =
+        passwordInput.value;
+
+
+
+
+
+      /* ---------------------------------------------------
+         CHECK CREDENTIALS
+         --------------------------------------------------- */
+
+      if (
+        username === VALID_USERNAME &&
+        password === VALID_PASSWORD
+      ) {
+
+
+        /*
+         * LOGIN SUCCESSFUL
+         */
+
+
+        // Reset failed attempts
+        clearLockoutData();
+
+
+        // Create session token
+        const token =
+          crypto.randomUUID();
+
+
+        // Save authentication information
+        sessionStorage.setItem(
+          "auth_token",
+          token
+        );
+
+        sessionStorage.setItem(
+          "auth_user",
+          username
+        );
+
+
+        /*
+         * IMPORTANT:
+         *
+         * "home.html" is used instead of
+         * "/home.html" because you are opening
+         * the website using file:///
+         */
+
+        window.location.href =
+          "home.html";
+
+
+        return;
+
+      }
+
+
+
+
+
+      /* ---------------------------------------------------
+         WRONG LOGIN
+         --------------------------------------------------- */
+
+      failedAttempts++;
+
+
+      // Save failed attempts
+      localStorage.setItem(
+        "failed_attempts",
+        failedAttempts
+      );
+
+
+
+
+
+      /* ---------------------------------------------------
+         CHECK FOR LOCKOUT
+         --------------------------------------------------- */
+
+      if (
+        failedAttempts >= MAX_ATTEMPTS
+      ) {
+
+
+        /*
+         * 5TH WRONG ATTEMPT
+         *
+         * LOCK THE ACCOUNT.
+         */
+
+        lockAccount();
+
+
+      } else {
+
+
+        /*
+         * Account is still available.
+         */
+
+        const remainingAttempts =
+          MAX_ATTEMPTS - failedAttempts;
+
+
+        errorMessage.textContent =
+          "Invalid username or password.";
+
+        errorMessage.classList.add("show");
+
+
+        attemptsMessage.textContent =
+          `${remainingAttempts} attempt(s) remaining`;
+
+      }
+
+    }
+
+
+
+
+
+    /* =====================================================
+       FORM SUBMISSION
+       ===================================================== */
+
+    form.addEventListener(
+      "submit",
+      function(event) {
+
+        // Prevent page refresh
+        event.preventDefault();
+
+
+        // Do not process login while locked
+        if (accountLocked) {
+
+          updateLockoutCountdown();
+
+          return;
+        }
+
+
+        // Hide previous error
+        errorMessage.classList.remove("show");
+
+
+        // Show loading
+        loginButton.disabled = true;
+
+        buttonText.style.display = "none";
+
+        spinner.style.display = "inline";
+
+
+        /*
+         * Small delay to show loading effect.
+         */
+
+        setTimeout(
+          function() {
+
+            handleLogin();
+
+
+            /*
+             * Re-enable button only if
+             * account is not locked.
+             */
+
+            if (!accountLocked) {
+
+              loginButton.disabled = false;
+
+            }
+
+
+            // Return button text
+            buttonText.style.display = "inline";
+
+            spinner.style.display = "none";
+
+          },
+          500
+        );
+
+      }
+    );
+
+
+
+
+
+    /* =====================================================
+       ENTER KEY SUPPORT
+       ===================================================== */
+
+    document.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (event.key === "Enter") {
+
+          form.requestSubmit();
+
+        }
+
+      }
+    );
+
+
+
+
+
+    /* =====================================================
+       CHECK LOCKOUT WHEN PAGE LOADS
+       ===================================================== */
+
+    if (accountLocked) {
+
+
+      /*
+       * Check how long the account has already
+       * been locked.
+       */
+
+      const elapsedTime =
+        Date.now() - lockoutStartTime;
+
+
+      if (
+        elapsedTime >= LOCKOUT_TIME
+      ) {
+
+
+        /*
+         * 30 seconds already passed.
+         *
+         * Unlock immediately.
+         */
+
+        unlockAccount();
+
+
+      } else {
+
+
+        /*
+         * Lockout is still active.
+         */
+
+        usernameInput.disabled = true;
+
+        passwordInput.disabled = true;
+
+        loginButton.disabled = true;
+
+
+        // Continue countdown
+        updateLockoutCountdown();
+
+      }
+
+
+    } else {
+
+
+      /*
+       * Account is not locked.
+       */
+
+      updateAttemptsDisplay();
+
+    }
+
+
+  </script>
+
+</body>
+
+</html>

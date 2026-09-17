@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Access Granted</title>
+
+  <!-- =====================================================
+       GOOGLE FONTS
+       ===================================================== -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+
+  <!-- =====================================================
+       PAGE STYLE
+       ===================================================== -->
+
+  <style>
+
+    /* =====================================================
+       COLORS
+       ===================================================== */
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --border: #262626;
+
+      --green: #22c55e;
+      --green-dim: #16a34a;
+      --green-dark: #052e16;
+
+      --text: #f5f5f5;
+      --muted: #525252;
+
+      --red: #ef4444;
+    }
+
+
+    /* =====================================================
+       GENERAL
+       ===================================================== */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      background: var(--bg);
+      color: var(--text);
+
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+
+
+    /* =====================================================
+       NAVIGATION
+       ===================================================== */
+
+    nav {
+      position: fixed;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 60px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 30px;
+
+      background: rgba(13, 13, 13, 0.95);
+
+      border-bottom: 1px solid var(--border);
+
+      z-index: 100;
+    }
+
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+
+      gap: 10px;
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+    }
+
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+
+      background: var(--green);
+
+      border-radius: 50%;
+    }
+
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+
+      gap: 20px;
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+    }
+
+
+    #clock {
+      color: var(--muted);
+    }
+
+
+    #user-display {
+      color: var(--green);
+    }
+
+
+    .logout-button {
+      padding: 6px 10px;
+
+      background: transparent;
+
+      border: 1px solid var(--border);
+
+      color: var(--muted);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+
+      cursor: pointer;
+    }
+
+
+    .logout-button:hover {
+      color: var(--red);
+
+      border-color: var(--red);
+    }
+
+
+
+    /* =====================================================
+       MAIN CONTENT
+       ===================================================== */
+
+    main {
+      width: 100%;
+      max-width: 1000px;
+
+      margin: 0 auto;
+
+      padding: 120px 30px 60px;
+    }
+
+
+
+    /* =====================================================
+       ACCESS STATUS
+       ===================================================== */
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+
+      gap: 8px;
+
+      margin-bottom: 25px;
+
+      padding: 7px 12px;
+
+      background: var(--green-dark);
+
+      border: 1px solid var(--green-dim);
+
+      color: var(--green);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+    }
+
+
+
+    /* =====================================================
+       HERO
+       ===================================================== */
+
+    .hero {
+      margin-bottom: 60px;
+    }
+
+
+    .hero-label {
+      margin-bottom: 10px;
+
+      color: var(--muted);
+
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+    }
+
+
+    .hero h1 {
+      margin: 0;
+
+      font-family: "IBM Plex Mono", monospace;
+
+      font-size: clamp(36px, 7vw, 70px);
+
+      font-weight: 600;
+
+      letter-spacing: -3px;
+
+      line-height: 1.05;
+    }
+
+
+    .hero h1 span {
+      color: var(--green);
+    }
+
+
+    .hero p {
+      max-width: 650px;
+
+      margin-top: 20px;
+
+      color: #999999;
+
+      font-size: 16px;
+
+      line-height: 1.7;
+    }
+
+
+
+    /* =====================================================
+       SESSION INFORMATION
+       ===================================================== */
+
+    .session-info {
+      display: grid;
+
+      grid-template-columns: repeat(2, 1fr);
+
+      gap: 15px;
+
+      margin-bottom: 60px;
+    }
+
+
+    .info-card {
+      padding: 20px;
+
+      background: var(--surface);
+
+      border: 1px solid var(--border);
+    }
+
+
+    .info-label {
+      margin-bottom: 8px;
+
+      color: var(--muted);
+
+      font-family: "IBM Plex Mono", monospace;
+
+      font-size: 10px;
+
+      text-transform: uppercase;
+    }
+
+
+    .info-value {
+      color: var(--text);
+
+      font-family: "IBM Plex Mono", monospace;
+
+      font-size: 14px;
+    }
+
+
+    .info-value.green {
+      color: var(--green);
+    }
+
+
+
+    /* =====================================================
+       SECTIONS
+       ===================================================== */
+
+    .section {
+      margin-bottom: 60px;
+    }
+
+
+    .section-header {
+      display: flex;
+      align-items: center;
+
+      gap: 15px;
+
+      margin-bottom: 20px;
+    }
+
+
+    .section-number {
+      color: var(--green);
+
+      font-family: "IBM Plex Mono", monospace;
+
+      font-size: 12px;
+    }
+
+
+    .section-title {
+      color: var(--text);
+
+      font-family: "IBM Plex Mono", monospace;
+
+      font-size: 14px;
+
+      font-weight: 500;
+    }
+
+
+
+    /* =====================================================
+       PROJECT INFORMATION
+       ===================================================== */
+
+    .disclaimer {
+      padding: 20px;
+
+      background: var(--surface);
+
+      border-left: 2px solid var(--green-dim);
+
+      color: #777777;
+
+      font-size: 12px;
+
+      line-height: 1.7;
+    }
+
+
+    .disclaimer strong {
+      color: #999999;
+    }
+
+
+
+    /* =====================================================
+       GROUP MEMBERS
+       ===================================================== */
+
+    .members {
+      display: grid;
+
+      grid-template-columns: repeat(3, 1fr);
+
+      gap: 10px;
+    }
+
+
+    .member {
+      padding: 15px;
+
+      background: var(--surface);
+
+      border: 1px solid var(--border);
+
+      font-family: "IBM Plex Mono", monospace;
+
+      font-size: 13px;
+
+      transition: border-color 0.2s;
+    }
+
+
+    .member:hover {
+      border-color: var(--green-dim);
+    }
+
+
+    .member-number {
+      margin-right: 8px;
+
+      color: var(--muted);
+    }
+
+
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    footer {
+      padding-top: 30px;
+
+      border-top: 1px solid var(--border);
+
+      color: var(--muted);
+
+      font-family: "IBM Plex Mono", monospace;
+
+      font-size: 10px;
+
+      text-align: center;
+    }
+
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @media (max-width: 700px) {
+
+      nav {
+        padding: 0 15px;
+      }
+
+
+      .nav-left {
+        font-size: 10px;
+      }
+
+
+      .nav-right {
+        gap: 10px;
+
+        font-size: 10px;
+      }
+
+
+      main {
+        padding: 100px 20px 40px;
+      }
+
+
+      .hero h1 {
+        letter-spacing: -2px;
+      }
+
+
+      .session-info {
+        grid-template-columns: 1fr;
+      }
+
+
+      .members {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- =====================================================
+       NAVIGATION
+       ===================================================== -->
+
+  <nav>
+
+
+    <div class="nav-left">
+
+      <div class="status-dot"></div>
+
+      <span>
+        IT 002 // IT41S3 // SESSION ACTIVE
+      </span>
+
+    </div>
+
+
+    <div class="nav-right">
+
+      <span id="clock">
+        00:00:00
+      </span>
+
+      <span id="user-display">
+        unknown
+      </span>
+
+      <button
+        class="logout-button"
+        onclick="logout()"
+      >
+        LOGOUT
+      </button>
+
+    </div>
+
+
+  </nav>
+
+
+
+  <!-- =====================================================
+       MAIN CONTENT
+       ===================================================== -->
+
+  <main>
+
+
+    <!-- ===================================================
+         ACCESS STATUS
+         =================================================== -->
+
+    <div class="status">
+      ✓ Access Granted
+    </div>
+
+
+
+    <!-- ===================================================
+         HERO
+         =================================================== -->
+
+    <section class="hero">
+
+      <div class="hero-label">
+        AUTHENTICATION STATUS
+      </div>
+
+
+      <h1>
+        Congratulations,<br>
+
+        <span>
+          you got in.
+        </span>
+      </h1>
+
+
+      <p>
+
+        Authentication successful.
+        Welcome,
+        <strong id="hero-user">
+          user
+        </strong>.
+
+        This page demonstrates a successful
+        login after passing the authentication
+        process.
+
+      </p>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         SESSION INFORMATION
+         =================================================== -->
+
+    <section class="session-info">
+
+
+      <!-- Authentication -->
+
+      <div class="info-card">
+
+        <div class="info-label">
+          Authentication
+        </div>
+
+        <div class="info-value green">
+          GRANTED
+        </div>
+
+      </div>
+
+
+
+      <!-- User -->
+
+      <div class="info-card">
+
+        <div class="info-label">
+          User
+        </div>
+
+        <div
+          class="info-value"
+          id="session-user"
+        >
+          —
+        </div>
+
+      </div>
+
+
+
+      <!-- Session ID -->
+
+      <div class="info-card">
+
+        <div class="info-label">
+          Session ID
+        </div>
+
+        <div
+          class="info-value"
+          id="session-id"
+        >
+          —
+        </div>
+
+      </div>
+
+
+
+      <!-- Course -->
+
+      <div class="info-card">
+
+        <div class="info-label">
+          Course
+        </div>
+
+        <div class="info-value">
+          IT 002
+        </div>
+
+      </div>
+
+
+
+      <!-- Section -->
+
+      <div class="info-card">
+
+        <div class="info-label">
+          Section
+        </div>
+
+        <div class="info-value">
+          IT41S3
+        </div>
+
+      </div>
+
+
+
+      <!-- Subject -->
+
+      <div class="info-card">
+
+        <div class="info-label">
+          Subject
+        </div>
+
+        <div class="info-value">
+          Information Assurance and Security 2
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         PROJECT INFORMATION
+         =================================================== -->
+
+    <section class="section">
+
+
+      <div class="section-header">
+
+        <span class="section-number">
+          [01]
+        </span>
+
+        <span class="section-title">
+          PROJECT INFORMATION
+        </span>
+
+      </div>
+
+
+      <div class="disclaimer">
+
+        <strong>
+          Information Assurance and Security 2
+          Demonstration
+        </strong>
+
+        <br><br>
+
+        This website is an academic demonstration
+        created for IT 002 - Information Assurance
+        and Security 2.
+
+        <br><br>
+
+        The login system demonstrates authentication
+        and an account lockout mechanism after multiple
+        failed login attempts.
+
+        After five unsuccessful login attempts,
+        the account is temporarily locked for
+        30 seconds before automatically unlocking.
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         GROUP MEMBERS
+         =================================================== -->
+
+    <section class="section">
+
+
+      <div class="section-header">
+
+        <span class="section-number">
+          [02]
+        </span>
+
+        <span class="section-title">
+          GROUP 7 // MEMBERS
+        </span>
+
+      </div>
+
+
+      <div class="members">
+
+
+        <div class="member">
+
+          <span class="member-number">
+            01
+          </span>
+
+          Geronimo
+
+        </div>
+
+
+        <div class="member">
+
+          <span class="member-number">
+            02
+          </span>
+
+          Malana
+
+        </div>
+
+
+        <div class="member">
+
+          <span class="member-number">
+            03
+          </span>
+
+          Domingo
+
+        </div>
+
+
+        <div class="member">
+
+          <span class="member-number">
+            04
+          </span>
+
+          Emia
+
+        </div>
+
+
+        <div class="member">
+
+          <span class="member-number">
+            05
+          </span>
+
+          Sumayod
+
+        </div>
+
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         DISCLAIMER
+         =================================================== -->
+
+    <section class="section">
+
+
+      <div class="disclaimer">
+
+        <strong>
+          Disclaimer:
+        </strong>
+
+        This website is intended for educational
+        purposes only. The authentication and
+        lockout mechanisms demonstrated here are
+        simplified examples and should not be used
+        as a production authentication system.
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         FOOTER
+         =================================================== -->
+
+    <footer>
+
+      IT 002 //
+      IT41S3 //
+      INFORMATION ASSURANCE AND SECURITY 2 //
+      GROUP 7
+
+    </footer>
+
+
+  </main>
+
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
+
+  <script>
+
+
+    /* =====================================================
+       CHECK LOGIN SESSION
+       ===================================================== */
+
+    const token =
+      sessionStorage.getItem("auth_token");
+
+
+    const user =
+      sessionStorage.getItem("auth_user")
+      || "unknown";
+
+
+    /*
+     * If there is no authentication token,
+     * return to index.html.
+     */
+
+    if (!token) {
+
+      window.location.href =
+        "index.html";
+
+    }
+
+
+
+    /* =====================================================
+       DISPLAY USER
+       ===================================================== */
+
+    document.getElementById(
+      "user-display"
+    ).textContent = user;
+
+
+    document.getElementById(
+      "hero-user"
+    ).textContent = user;
+
+
+    document.getElementById(
+      "session-user"
+    ).textContent = user;
+
+
+
+    /* =====================================================
+       DISPLAY SESSION ID
+       ===================================================== */
+
+    document.getElementById(
+      "session-id"
+    ).textContent =
+      token
+        ? token.slice(-8).toUpperCase()
+        : "—";
+
+
+
+    /* =====================================================
+       LOGOUT FUNCTION
+       ===================================================== */
+
+    function logout() {
+
+      /*
+       * Remove login information.
+       */
+
+      sessionStorage.removeItem(
+        "auth_token"
+      );
+
+      sessionStorage.removeItem(
+        "auth_user"
+      );
+
+
+      /*
+       * Return to index.html.
+       */
+
+      window.location.href =
+        "index.html";
+
+    }
+
+
+
+    /* =====================================================
+       CLOCK
+       ===================================================== */
+
+    function updateClock() {
+
+      document.getElementById(
+        "clock"
+      ).textContent =
+        new Date().toLocaleTimeString(
+          "en-US",
+          {
+            hour12: false
+          }
+        );
+
+    }
+
+
+    /*
+     * Start clock.
+     */
+
+    updateClock();
+
+
+    /*
+     * Update every second.
+     */
+
+    setInterval(
+      updateClock,
+      1000
+    );
+
+
+  </script>
+
+
+</body>
+
+</html>
