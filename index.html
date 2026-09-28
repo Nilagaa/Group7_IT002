@@ -1,1102 +1,370 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Sign In</title>
-
-  <!-- Google Fonts -->
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <title>Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  >
-
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
   <style>
-
-    /* =====================================================
-       COLORS
-       ===================================================== */
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #111111;
       --surface: #1a1a1a;
       --border: #2e2e2e;
-
       --text: #f0f0f0;
-      --muted: #666666;
-
+      --muted: #666;
       --accent: #f0f0f0;
-
       --error: #f87171;
-      --success: #22c55e;
     }
-
-
-
-    /* =====================================================
-       GENERAL
-       ===================================================== */
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0;
-      min-height: 100vh;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
       background: var(--bg);
       color: var(--text);
-
-      font-family: "IBM Plex Sans", sans-serif;
+      font-family: 'IBM Plex Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
 
+    .course-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-bottom: 40px;
+    }
 
-
-    /* =====================================================
-       LOGIN CARD
-       ===================================================== */
-
-    .login-card {
-      width: 100%;
-      max-width: 380px;
-
-      padding: 40px;
-
+    .card {
       background: var(--surface);
       border: 1px solid var(--border);
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
     }
 
-
-
-    /* =====================================================
-       PROJECT INFORMATION
-       ===================================================== */
-
-    .project-info {
-      margin-bottom: 25px;
-      padding-bottom: 20px;
-
-      border-bottom: 1px solid var(--border);
-
-      text-align: center;
-    }
-
-    .project-code {
-      margin-bottom: 6px;
-
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 32px;
       color: var(--text);
-
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      font-weight: 600;
     }
 
-    .project-subject {
-      color: var(--muted);
-
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-
-
-    /* =====================================================
-       TITLE
-       ===================================================== */
-
-    .title {
-      margin-bottom: 30px;
-    }
-
-    .title h1 {
-      margin: 0 0 8px;
-
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    .title p {
-      margin: 0;
-
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-
-
-    /* =====================================================
-       FORM
-       ===================================================== */
-
-    .form-group {
-      margin-bottom: 20px;
-    }
+    .field { margin-bottom: 18px; }
 
     label {
       display: block;
-
-      margin-bottom: 8px;
-
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--muted);
-
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
+      margin-bottom: 7px;
     }
 
     input {
       width: 100%;
-
-      padding: 12px;
-
-      background: #111111;
+      background: var(--bg);
       border: 1px solid var(--border);
-
+      padding: 11px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
       color: var(--text);
-
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 14px;
-
       outline: none;
+      transition: border-color 0.15s;
     }
+    input:focus { border-color: #555; }
+    input::placeholder { color: #444; }
 
-    input:focus {
-      border-color: var(--accent);
+    .error-msg {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--error);
+      margin-top: 8px;
+      display: none;
     }
+    .error-msg.show { display: block; }
 
-    input:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .attempts-msg {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      display: none;
     }
+    .attempts-msg.show { display: block; }
+    .attempts-msg.low { color: var(--error); }
 
+    .lockout-box {
+      display: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--error);
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.35);
+      padding: 10px 12px;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .lockout-box.show { display: block; }
 
-
-    /* =====================================================
-       LOGIN BUTTON
-       ===================================================== */
-
-    button {
+    button[type="submit"] {
       width: 100%;
-
-      padding: 12px;
-
-      border: 1px solid var(--accent);
-
-      background: var(--accent);
-      color: #111111;
-
-      font-family: "IBM Plex Mono", monospace;
+      margin-top: 10px;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      padding: 13px;
+      font-family: 'IBM Plex Sans', sans-serif;
       font-size: 13px;
       font-weight: 600;
-
       cursor: pointer;
+      transition: opacity 0.15s;
+      letter-spacing: 0.03em;
     }
+    button[type="submit"]:hover { opacity: 0.85; }
+    button[type="submit"]:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    button:hover:not(:disabled) {
-      opacity: 0.85;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-
-
-    /* =====================================================
-       ERROR MESSAGE
-       ===================================================== */
-
-    .error {
-      display: none;
-
-      margin-bottom: 15px;
-
-      color: var(--error);
-
-      font-family: "IBM Plex Mono", monospace;
+    .btn-signup {
+      width: 100%;
+      margin-top: 14px;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 11px;
+      font-family: 'IBM Plex Sans', sans-serif;
       font-size: 12px;
-
-      line-height: 1.5;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.03em;
     }
+    .btn-signup:hover { border-color: #555; background: rgba(255,255,255,0.05); }
 
-    .error.show {
-      display: block;
-    }
-
-
-
-    /* =====================================================
-       ATTEMPT COUNTER
-       ===================================================== */
-
-    .attempts {
-      margin-top: 12px;
-
-      color: var(--muted);
-
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
-
-      text-align: center;
-    }
-
-    .attempts.locked {
-      color: var(--error);
-    }
-
-    .attempts.unlocked {
-      color: var(--success);
-    }
-
-
-
-    /* =====================================================
-       FOOTER
-       ===================================================== */
-
-    .footer {
-      margin-top: 25px;
-
-      color: var(--muted);
-
-      font-size: 10px;
-
-      line-height: 1.6;
-
-      text-align: center;
-    }
-
-
-
-    /* =====================================================
-       LOADING TEXT
-       ===================================================== */
-
-    #spinner {
+    .spinner {
       display: none;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+    .modal.show { display: flex; }
+    .modal-content { background: var(--surface); border: 1px solid var(--border); padding: 40px; width: 100%; max-width: 380px; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 0; width: 24px; height: 24px; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+
+    .created-by {
+      margin-top: 20px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
   </style>
 </head>
-
-
-
 <body>
+  <div class="course-tag">IT 002-IT41S3 - Information Assurance and Security 2</div>
+
+  <div class="card">
+    <h1>Sign in</h1>
 
 
-  <!-- =====================================================
-       LOGIN CARD
-       ===================================================== -->
-
-  <div class="login-card">
-
-
-    <!-- ===================================================
-         PROJECT INFORMATION
-         =================================================== -->
-
-    <div class="project-info">
-
-      <div class="project-code">
-        IT 002 // IT41S3
-      </div>
-
-      <div class="project-subject">
-        Information Assurance and Security 2
-      </div>
-
+    <div class="field">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="username" autocomplete="username"/>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="password" autocomplete="current-password"/>
+      <div class="error-msg" id="error-msg">Invalid username or password.</div>
+      <div class="attempts-msg" id="attempts-msg"></div>
     </div>
 
+    <div class="lockout-box" id="lockout-box"></div>
 
-
-    <!-- ===================================================
-         TITLE
-         =================================================== -->
-
-    <div class="title">
-
-      <h1>
-        Sign in
-      </h1>
-
-      <p>
-        Authentication required
-      </p>
-
-    </div>
-
-
-
-    <!-- ===================================================
-         LOGIN FORM
-         =================================================== -->
-
-    <form id="login-form">
-
-
-
-      <!-- USERNAME -->
-
-      <div class="form-group">
-
-        <label for="username">
-          USERNAME
-        </label>
-
-        <input
-          type="text"
-          id="username"
-          placeholder="Enter username"
-          autocomplete="username"
-        >
-
-      </div>
-
-
-
-      <!-- PASSWORD -->
-
-      <div class="form-group">
-
-        <label for="password">
-          PASSWORD
-        </label>
-
-        <input
-          type="password"
-          id="password"
-          placeholder="Enter password"
-          autocomplete="current-password"
-        >
-
-      </div>
-
-
-
-      <!-- ERROR MESSAGE -->
-
-      <div
-        id="error-msg"
-        class="error"
-      ></div>
-
-
-
-      <!-- LOGIN BUTTON -->
-
-      <button
-        type="submit"
-        id="login-btn"
-      >
-
-        <span id="btn-text">
-          Sign In
-        </span>
-
-        <span id="spinner">
-          Signing in...
-        </span>
-
-      </button>
-
-
-
-      <!-- ATTEMPT COUNTER -->
-
-      <div
-        id="attempts-message"
-        class="attempts"
-      ></div>
-
-
-
-    </form>
-
-
-
-    <!-- ===================================================
-         FOOTER
-         =================================================== -->
-
-    <div class="footer">
-
-      Group 7<br>
-
-      Geronimo // Malana // Domingo // Emia // Sumayod
-
-    </div>
-
-
+    <button type="submit" id="login-btn" onclick="handleLogin()">
+      <span id="btn-text">Sign in</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+    <button type="button" class="btn-signup" onclick="openSignupModal()">Create Account</button>
   </div>
 
+  <div class="modal" id="signup-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeSignupModal()">×</button>
+      <h1>Create Account</h1>
+      <div class="field">
+        <label for="signup-username">Username</label>
+        <input type="text" id="signup-username" placeholder="username" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label for="signup-password">Password</label>
+        <input type="password" id="signup-password" placeholder="password" autocomplete="off"/>
+        <div class="error-msg" id="signup-error-msg"></div>
+      </div>
+      <button type="submit" id="signup-btn" onclick="handleSignup()">
+        <span id="signup-btn-text">Create Account</span>
+        <div class="spinner" id="signup-spinner"></div>
+      </button>
+    </div>
+  </div>
 
-
-
-
-  <!-- =====================================================
-       JAVASCRIPT
-       ===================================================== -->
+  <div class="created-by">created by — Group 7</div>
 
   <script>
-
-
-    /* =====================================================
-       LOGIN SETTINGS
-       ===================================================== */
-
-    const VALID_USERNAME = "admin";
-
-    const VALID_PASSWORD = "admin123";
-
-
-    /*
-     * Maximum number of failed attempts.
-     */
-
-    const MAX_ATTEMPTS = 5;
-
-
-    /*
-     * Account lockout duration.
-     *
-     * 30 seconds.
-     */
-
-    const LOCKOUT_TIME = 30 * 1000;
-
-
-
-
-
-    /* =====================================================
-       LOCKOUT DATA
-       ===================================================== */
-
-    let failedAttempts =
-      Number(
-        localStorage.getItem("failed_attempts")
-      ) || 0;
-
-
-    let accountLocked =
-      localStorage.getItem("account_locked") === "true";
-
-
-    let lockoutStartTime =
-      Number(
-        localStorage.getItem("lockout_start_time")
-      ) || 0;
-
-
-
-
-
-    /* =====================================================
-       HTML ELEMENTS
-       ===================================================== */
-
-    const form =
-      document.getElementById("login-form");
-
-    const usernameInput =
-      document.getElementById("username");
-
-    const passwordInput =
-      document.getElementById("password");
-
-    const loginButton =
-      document.getElementById("login-btn");
-
-    const buttonText =
-      document.getElementById("btn-text");
-
-    const spinner =
-      document.getElementById("spinner");
-
-    const errorMessage =
-      document.getElementById("error-msg");
-
-    const attemptsMessage =
-      document.getElementById("attempts-message");
-
-
-
-
-
-    /* =====================================================
-       SAVE LOCKOUT DATA
-       ===================================================== */
-
-    function saveLockoutData() {
-
-      localStorage.setItem(
-        "failed_attempts",
-        failedAttempts
-      );
-
-      localStorage.setItem(
-        "account_locked",
-        accountLocked
-      );
-
-      localStorage.setItem(
-        "lockout_start_time",
-        lockoutStartTime
-      );
-
+    function openSignupModal() {
+      document.getElementById('signup-modal').classList.add('show');
+      document.getElementById('signup-username').focus();
+    }
+    function closeSignupModal() {
+      document.getElementById('signup-modal').classList.remove('show');
+      document.getElementById('signup-username').value = '';
+      document.getElementById('signup-password').value = '';
+      document.getElementById('signup-error-msg').textContent = '';
+      document.getElementById('signup-error-msg').classList.remove('show');
     }
 
+    let lockoutTimer = null;
 
-
-
-
-    /* =====================================================
-       CLEAR LOCKOUT DATA
-       ===================================================== */
-
-    function clearLockoutData() {
-
-      failedAttempts = 0;
-
-      accountLocked = false;
-
-      lockoutStartTime = 0;
-
-
-      localStorage.removeItem(
-        "failed_attempts"
-      );
-
-      localStorage.removeItem(
-        "account_locked"
-      );
-
-      localStorage.removeItem(
-        "lockout_start_time"
-      );
-
+    function fmtTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}s`;
     }
 
-
-
-
-
-    /* =====================================================
-       LOCK ACCOUNT
-
-       THIS IS THE MAIN LOCKOUT FUNCTION.
-
-       After 5 failed attempts:
-
-       1. Account becomes locked
-       2. Login fields are disabled
-       3. Login button is disabled
-       4. 30-second countdown begins
-       ===================================================== */
-
-    function lockAccount() {
-
-      // Mark account as locked
-      accountLocked = true;
-
-
-      // Record lockout start time
-      lockoutStartTime = Date.now();
-
-
-      // Save lockout information
-      saveLockoutData();
-
-
-      // Disable username
-      usernameInput.disabled = true;
-
-
-      // Disable password
-      passwordInput.disabled = true;
-
-
-      // Disable login button
-      loginButton.disabled = true;
-
-
-      // Show lockout message
-      errorMessage.textContent =
-        "Account locked. Too many failed login attempts.";
-
-      errorMessage.classList.add("show");
-
-
-      // Start countdown
-      attemptsMessage.classList.add("locked");
-
-      updateLockoutCountdown();
-
-    }
-
-
-
-
-
-    /* =====================================================
-       UNLOCK ACCOUNT
-
-       Automatically called after 30 seconds.
-       ===================================================== */
-
-    function unlockAccount() {
-
-      // Reset lockout data
-      clearLockoutData();
-
-
-      // Enable username
-      usernameInput.disabled = false;
-
-
-      // Enable password
-      passwordInput.disabled = false;
-
-
-      // Enable login button
-      loginButton.disabled = false;
-
-
-      // Clear password
-      passwordInput.value = "";
-
-
-      // Remove error
-      errorMessage.textContent = "";
-
-      errorMessage.classList.remove("show");
-
-
-      // Show successful unlock message
-      attemptsMessage.classList.remove("locked");
-
-      attemptsMessage.classList.add("unlocked");
-
-      attemptsMessage.textContent =
-        "Account unlocked. You may try again.";
-
-
-      // Return to normal counter after 2 seconds
-      setTimeout(function() {
-
-        attemptsMessage.classList.remove("unlocked");
-
-        updateAttemptsDisplay();
-
-      }, 2000);
-
-    }
-
-
-
-
-
-    /* =====================================================
-       LOCKOUT COUNTDOWN
-       ===================================================== */
-
-    function updateLockoutCountdown() {
-
-      // Stop if account is no longer locked
-      if (!accountLocked) {
+    function updateAttemptsMsg(remaining) {
+      const el = document.getElementById('attempts-msg');
+      if (remaining === undefined || remaining === null) {
+        el.classList.remove('show');
         return;
       }
-
-
-      // Calculate elapsed time
-      const elapsedTime =
-        Date.now() - lockoutStartTime;
-
-
-      // Calculate remaining time
-      const remainingTime =
-        LOCKOUT_TIME - elapsedTime;
-
-
-      // If countdown reaches zero
-      if (remainingTime <= 0) {
-
-        unlockAccount();
-
-        return;
-      }
-
-
-      // Convert milliseconds to seconds
-      const remainingSeconds =
-        Math.ceil(
-          remainingTime / 1000
-        );
-
-
-      // Display countdown
-      attemptsMessage.textContent =
-        `Account locked. Unlocking in ${remainingSeconds} second(s)...`;
-
-
-      // Run again after 1 second
-      setTimeout(
-        updateLockoutCountdown,
-        1000
-      );
-
+      el.textContent = `${remaining} attempt${remaining === 1 ? '' : 's'} remaining`;
+      el.classList.toggle('low', remaining <= 2);
+      el.classList.add('show');
     }
 
+    function startLockoutCountdown(seconds, locked) {
+      const box = document.getElementById('lockout-box');
+      const btn = document.getElementById('login-btn');
+      let remaining = seconds;
+      btn.disabled = true;
+      box.classList.add('show');
+      if (lockoutTimer) clearInterval(lockoutTimer);
 
+      const label = locked ? 'Account locked' : 'Please wait';
+      const render = () => {
+        box.textContent = `${label} — try again in ${fmtTime(remaining)}`;
+      };
+      render();
 
-
-
-    /* =====================================================
-       UPDATE ATTEMPT COUNTER
-       ===================================================== */
-
-    function updateAttemptsDisplay() {
-
-      if (accountLocked) {
-        return;
-      }
-
-
-      const remainingAttempts =
-        MAX_ATTEMPTS - failedAttempts;
-
-
-      attemptsMessage.textContent =
-        `${remainingAttempts} attempt(s) remaining`;
-
+      lockoutTimer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(lockoutTimer);
+          lockoutTimer = null;
+          box.classList.remove('show');
+          btn.disabled = false;
+        } else {
+          render();
+        }
+      }, 1000);
     }
 
-
-
-
-
-    /* =====================================================
-       LOGIN FUNCTION
-       ===================================================== */
-
-    function handleLogin() {
-
-
-      /* ---------------------------------------------------
-         CHECK IF ACCOUNT IS LOCKED
-         --------------------------------------------------- */
-
-      if (accountLocked) {
-
-        updateLockoutCountdown();
-
-        return;
-      }
-
-
-
-
-
-      /* ---------------------------------------------------
-         GET USER INPUT
-         --------------------------------------------------- */
-
-      const username =
-        usernameInput.value.trim();
-
-      const password =
-        passwordInput.value;
-
-
-
-
-
-      /* ---------------------------------------------------
-         CHECK CREDENTIALS
-         --------------------------------------------------- */
-
-      if (
-        username === VALID_USERNAME &&
-        password === VALID_PASSWORD
-      ) {
-
-
-        /*
-         * LOGIN SUCCESSFUL
-         */
-
-
-        // Reset failed attempts
-        clearLockoutData();
-
-
-        // Create session token
-        const token =
-          crypto.randomUUID();
-
-
-        // Save authentication information
-        sessionStorage.setItem(
-          "auth_token",
-          token
-        );
-
-        sessionStorage.setItem(
-          "auth_user",
-          username
-        );
-
-
-        /*
-         * IMPORTANT:
-         *
-         * "home.html" is used instead of
-         * "/home.html" because you are opening
-         * the website using file:///
-         */
-
-        window.location.href =
-          "home.html";
-
-
-        return;
-
-      }
-
-
-
-
-
-      /* ---------------------------------------------------
-         WRONG LOGIN
-         --------------------------------------------------- */
-
-      failedAttempts++;
-
-
-      // Save failed attempts
-      localStorage.setItem(
-        "failed_attempts",
-        failedAttempts
-      );
-
-
-
-
-
-      /* ---------------------------------------------------
-         CHECK FOR LOCKOUT
-         --------------------------------------------------- */
-
-      if (
-        failedAttempts >= MAX_ATTEMPTS
-      ) {
-
-
-        /*
-         * 5TH WRONG ATTEMPT
-         *
-         * LOCK THE ACCOUNT.
-         */
-
-        lockAccount();
-
-
-      } else {
-
-
-        /*
-         * Account is still available.
-         */
-
-        const remainingAttempts =
-          MAX_ATTEMPTS - failedAttempts;
-
-
-        errorMessage.textContent =
-          "Invalid username or password.";
-
-        errorMessage.classList.add("show");
-
-
-        attemptsMessage.textContent =
-          `${remainingAttempts} attempt(s) remaining`;
-
-      }
-
-    }
-
-
-
-
-
-    /* =====================================================
-       FORM SUBMISSION
-       ===================================================== */
-
-    form.addEventListener(
-      "submit",
-      function(event) {
-
-        // Prevent page refresh
-        event.preventDefault();
-
-
-        // Do not process login while locked
-        if (accountLocked) {
-
-          updateLockoutCountdown();
-
+    async function handleLogin() {
+      if (lockoutTimer) return;
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('login-btn');
+      const btnText = document.getElementById('btn-text');
+      const spinner = document.getElementById('spinner');
+      const errorMsg = document.getElementById('error-msg');
+      errorMsg.classList.remove('show');
+      btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'block';
+      try {
+        const res = await fetch('login.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          updateAttemptsMsg(null);
+          sessionStorage.setItem('auth_token', data.token);
+          sessionStorage.setItem('auth_user', username);
+          sessionStorage.setItem('auth_privilege', data.privilege || 'user');
+          window.location.href = 'home.html';
           return;
         }
 
+        errorMsg.textContent = data.error || 'Invalid username or password.';
+        errorMsg.classList.add('show');
 
-        // Hide previous error
-        errorMessage.classList.remove("show");
-
-
-        // Show loading
-        loginButton.disabled = true;
-
-        buttonText.style.display = "none";
-
-        spinner.style.display = "inline";
-
-
-        /*
-         * Small delay to show loading effect.
-         */
-
-        setTimeout(
-          function() {
-
-            handleLogin();
-
-
-            /*
-             * Re-enable button only if
-             * account is not locked.
-             */
-
-            if (!accountLocked) {
-
-              loginButton.disabled = false;
-
-            }
-
-
-            // Return button text
-            buttonText.style.display = "inline";
-
-            spinner.style.display = "none";
-
-          },
-          500
-        );
-
-      }
-    );
-
-
-
-
-
-    /* =====================================================
-       ENTER KEY SUPPORT
-       ===================================================== */
-
-    document.addEventListener(
-      "keydown",
-      function(event) {
-
-        if (event.key === "Enter") {
-
-          form.requestSubmit();
-
+        if (typeof data.attempts_remaining === 'number') {
+          updateAttemptsMsg(data.attempts_remaining);
         }
 
+        if (data.retry_after) {
+          if (data.locked) updateAttemptsMsg(0);
+          startLockoutCountdown(data.retry_after, !!data.locked);
+        } else {
+          btn.disabled = false;
+        }
+      } catch (e) {
+        errorMsg.textContent = 'Connection error. Please try again.';
+        errorMsg.classList.add('show');
+        btn.disabled = false;
+      } finally {
+        btnText.style.display = 'block'; spinner.style.display = 'none';
       }
-    );
-
-
-
-
-
-    /* =====================================================
-       CHECK LOCKOUT WHEN PAGE LOADS
-       ===================================================== */
-
-    if (accountLocked) {
-
-
-      /*
-       * Check how long the account has already
-       * been locked.
-       */
-
-      const elapsedTime =
-        Date.now() - lockoutStartTime;
-
-
-      if (
-        elapsedTime >= LOCKOUT_TIME
-      ) {
-
-
-        /*
-         * 30 seconds already passed.
-         *
-         * Unlock immediately.
-         */
-
-        unlockAccount();
-
-
-      } else {
-
-
-        /*
-         * Lockout is still active.
-         */
-
-        usernameInput.disabled = true;
-
-        passwordInput.disabled = true;
-
-        loginButton.disabled = true;
-
-
-        // Continue countdown
-        updateLockoutCountdown();
-
-      }
-
-
-    } else {
-
-
-      /*
-       * Account is not locked.
-       */
-
-      updateAttemptsDisplay();
-
     }
 
+    async function handleSignup() {
+      const username = document.getElementById('signup-username').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const btn = document.getElementById('signup-btn');
+      const btnText = document.getElementById('signup-btn-text');
+      const spinner = document.getElementById('signup-spinner');
+      const errorMsg = document.getElementById('signup-error-msg');
+      errorMsg.classList.remove('show');
+      btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'block';
+      try {
+        const res = await fetch('register.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ username, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeSignupModal();
+          document.getElementById('error-msg').textContent = 'Account created! Sign in now.';
+          document.getElementById('error-msg').classList.add('show');
+          document.getElementById('username').focus();
+        } else {
+          errorMsg.textContent = data.error || 'Registration failed.';
+          errorMsg.classList.add('show');
+        }
+      } catch (e) {
+        errorMsg.textContent = 'Connection error. Please try again.';
+        errorMsg.classList.add('show');
+      } finally {
+        btn.disabled = false; btnText.style.display = 'block'; spinner.style.display = 'none';
+      }
+    }
 
+    document.addEventListener('keydown', e => { if (e.key === 'Enter' && !document.getElementById('signup-modal').classList.contains('show')) handleLogin(); });
+    document.getElementById('signup-password').addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('signup-modal').classList.contains('show')) handleSignup(); });
   </script>
-
 </body>
-
 </html>

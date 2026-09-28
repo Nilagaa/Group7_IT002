@@ -4,12 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive">
 
   <title>Access Granted</title>
-
-  <!-- =====================================================
-       GOOGLE FONTS
-       ===================================================== -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,16 +16,7 @@
     rel="stylesheet"
   >
 
-
-  <!-- =====================================================
-       PAGE STYLE
-       ===================================================== -->
-
   <style>
-
-    /* =====================================================
-       COLORS
-       ===================================================== */
 
     :root {
       --bg: #0d0d0d;
@@ -45,11 +33,6 @@
       --red: #ef4444;
     }
 
-
-    /* =====================================================
-       GENERAL
-       ===================================================== */
-
     * {
       box-sizing: border-box;
     }
@@ -63,11 +46,6 @@
 
       font-family: "IBM Plex Sans", sans-serif;
     }
-
-
-    /* =====================================================
-       NAVIGATION
-       ===================================================== */
 
     nav {
       position: fixed;
@@ -91,7 +69,6 @@
       z-index: 100;
     }
 
-
     .nav-left {
       display: flex;
       align-items: center;
@@ -102,7 +79,6 @@
       font-size: 12px;
     }
 
-
     .status-dot {
       width: 7px;
       height: 7px;
@@ -111,7 +87,6 @@
 
       border-radius: 50%;
     }
-
 
     .nav-right {
       display: flex;
@@ -123,16 +98,13 @@
       font-size: 12px;
     }
 
-
     #clock {
       color: var(--muted);
     }
 
-
     #user-display {
       color: var(--green);
     }
-
 
     .logout-button {
       padding: 6px 10px;
@@ -149,18 +121,11 @@
       cursor: pointer;
     }
 
-
     .logout-button:hover {
       color: var(--red);
 
       border-color: var(--red);
     }
-
-
-
-    /* =====================================================
-       MAIN CONTENT
-       ===================================================== */
 
     main {
       width: 100%;
@@ -170,12 +135,6 @@
 
       padding: 120px 30px 60px;
     }
-
-
-
-    /* =====================================================
-       ACCESS STATUS
-       ===================================================== */
 
     .status {
       display: inline-flex;
@@ -197,16 +156,9 @@
       font-size: 11px;
     }
 
-
-
-    /* =====================================================
-       HERO
-       ===================================================== */
-
     .hero {
       margin-bottom: 60px;
     }
-
 
     .hero-label {
       margin-bottom: 10px;
@@ -216,7 +168,6 @@
       font-family: "IBM Plex Mono", monospace;
       font-size: 12px;
     }
-
 
     .hero h1 {
       margin: 0;
@@ -232,11 +183,9 @@
       line-height: 1.05;
     }
 
-
     .hero h1 span {
       color: var(--green);
     }
-
 
     .hero p {
       max-width: 650px;
@@ -250,12 +199,6 @@
       line-height: 1.7;
     }
 
-
-
-    /* =====================================================
-       SESSION INFORMATION
-       ===================================================== */
-
     .session-info {
       display: grid;
 
@@ -266,7 +209,6 @@
       margin-bottom: 60px;
     }
 
-
     .info-card {
       padding: 20px;
 
@@ -274,7 +216,6 @@
 
       border: 1px solid var(--border);
     }
-
 
     .info-label {
       margin-bottom: 8px;
@@ -288,7 +229,6 @@
       text-transform: uppercase;
     }
 
-
     .info-value {
       color: var(--text);
 
@@ -297,21 +237,13 @@
       font-size: 14px;
     }
 
-
     .info-value.green {
       color: var(--green);
     }
 
-
-
-    /* =====================================================
-       SECTIONS
-       ===================================================== */
-
     .section {
       margin-bottom: 60px;
     }
-
 
     .section-header {
       display: flex;
@@ -322,7 +254,6 @@
       margin-bottom: 20px;
     }
 
-
     .section-number {
       color: var(--green);
 
@@ -330,7 +261,6 @@
 
       font-size: 12px;
     }
-
 
     .section-title {
       color: var(--text);
@@ -341,12 +271,6 @@
 
       font-weight: 500;
     }
-
-
-
-    /* =====================================================
-       PROJECT INFORMATION
-       ===================================================== */
 
     .disclaimer {
       padding: 20px;
@@ -362,16 +286,9 @@
       line-height: 1.7;
     }
 
-
     .disclaimer strong {
       color: #999999;
     }
-
-
-
-    /* =====================================================
-       GROUP MEMBERS
-       ===================================================== */
 
     .members {
       display: grid;
@@ -380,7 +297,6 @@
 
       gap: 10px;
     }
-
 
     .member {
       padding: 15px;
@@ -396,23 +312,15 @@
       transition: border-color 0.2s;
     }
 
-
     .member:hover {
       border-color: var(--green-dim);
     }
-
 
     .member-number {
       margin-right: 8px;
 
       color: var(--muted);
     }
-
-
-
-    /* =====================================================
-       FOOTER
-       ===================================================== */
 
     footer {
       padding-top: 30px;
@@ -428,23 +336,15 @@
       text-align: center;
     }
 
-
-
-    /* =====================================================
-       MOBILE
-       ===================================================== */
-
     @media (max-width: 700px) {
 
       nav {
         padding: 0 15px;
       }
 
-
       .nav-left {
         font-size: 10px;
       }
-
 
       .nav-right {
         gap: 10px;
@@ -452,21 +352,17 @@
         font-size: 10px;
       }
 
-
       main {
         padding: 100px 20px 40px;
       }
-
 
       .hero h1 {
         letter-spacing: -2px;
       }
 
-
       .session-info {
         grid-template-columns: 1fr;
       }
-
 
       .members {
         grid-template-columns: 1fr;
@@ -478,16 +374,9 @@
 
 </head>
 
-
 <body>
 
-
-  <!-- =====================================================
-       NAVIGATION
-       ===================================================== -->
-
   <nav>
-
 
     <div class="nav-left">
 
@@ -498,7 +387,6 @@
       </span>
 
     </div>
-
 
     <div class="nav-right">
 
@@ -519,38 +407,19 @@
 
     </div>
 
-
   </nav>
 
-
-
-  <!-- =====================================================
-       MAIN CONTENT
-       ===================================================== -->
-
   <main>
-
-
-    <!-- ===================================================
-         ACCESS STATUS
-         =================================================== -->
 
     <div class="status">
       ✓ Access Granted
     </div>
-
-
-
-    <!-- ===================================================
-         HERO
-         =================================================== -->
 
     <section class="hero">
 
       <div class="hero-label">
         AUTHENTICATION STATUS
       </div>
-
 
       <h1>
         Congratulations,<br>
@@ -559,7 +428,6 @@
           you got in.
         </span>
       </h1>
-
 
       <p>
 
@@ -577,16 +445,7 @@
 
     </section>
 
-
-
-    <!-- ===================================================
-         SESSION INFORMATION
-         =================================================== -->
-
     <section class="session-info">
-
-
-      <!-- Authentication -->
 
       <div class="info-card">
 
@@ -599,10 +458,6 @@
         </div>
 
       </div>
-
-
-
-      <!-- User -->
 
       <div class="info-card">
 
@@ -619,10 +474,6 @@
 
       </div>
 
-
-
-      <!-- Session ID -->
-
       <div class="info-card">
 
         <div class="info-label">
@@ -638,10 +489,6 @@
 
       </div>
 
-
-
-      <!-- Course -->
-
       <div class="info-card">
 
         <div class="info-label">
@@ -653,10 +500,6 @@
         </div>
 
       </div>
-
-
-
-      <!-- Section -->
 
       <div class="info-card">
 
@@ -670,10 +513,6 @@
 
       </div>
 
-
-
-      <!-- Subject -->
-
       <div class="info-card">
 
         <div class="info-label">
@@ -686,17 +525,9 @@
 
       </div>
 
-
     </section>
 
-
-
-    <!-- ===================================================
-         PROJECT INFORMATION
-         =================================================== -->
-
     <section class="section">
-
 
       <div class="section-header">
 
@@ -709,7 +540,6 @@
         </span>
 
       </div>
-
 
       <div class="disclaimer">
 
@@ -736,17 +566,9 @@
 
       </div>
 
-
     </section>
 
-
-
-    <!-- ===================================================
-         GROUP MEMBERS
-         =================================================== -->
-
     <section class="section">
-
 
       <div class="section-header">
 
@@ -760,9 +582,7 @@
 
       </div>
 
-
       <div class="members">
-
 
         <div class="member">
 
@@ -774,7 +594,6 @@
 
         </div>
 
-
         <div class="member">
 
           <span class="member-number">
@@ -784,7 +603,6 @@
           Malana
 
         </div>
-
 
         <div class="member">
 
@@ -796,7 +614,6 @@
 
         </div>
 
-
         <div class="member">
 
           <span class="member-number">
@@ -806,7 +623,6 @@
           Emia
 
         </div>
-
 
         <div class="member">
 
@@ -818,20 +634,11 @@
 
         </div>
 
-
       </div>
-
 
     </section>
 
-
-
-    <!-- ===================================================
-         DISCLAIMER
-         =================================================== -->
-
     <section class="section">
-
 
       <div class="disclaimer">
 
@@ -847,14 +654,7 @@
 
       </div>
 
-
     </section>
-
-
-
-    <!-- ===================================================
-         FOOTER
-         =================================================== -->
 
     <footer>
 
@@ -865,35 +665,16 @@
 
     </footer>
 
-
   </main>
 
-
-
-  <!-- =====================================================
-       JAVASCRIPT
-       ===================================================== -->
-
   <script>
-
-
-    /* =====================================================
-       CHECK LOGIN SESSION
-       ===================================================== */
 
     const token =
       sessionStorage.getItem("auth_token");
 
-
     const user =
       sessionStorage.getItem("auth_user")
       || "unknown";
-
-
-    /*
-     * If there is no authentication token,
-     * return to index.html.
-     */
 
     if (!token) {
 
@@ -902,31 +683,17 @@
 
     }
 
-
-
-    /* =====================================================
-       DISPLAY USER
-       ===================================================== */
-
     document.getElementById(
       "user-display"
     ).textContent = user;
-
 
     document.getElementById(
       "hero-user"
     ).textContent = user;
 
-
     document.getElementById(
       "session-user"
     ).textContent = user;
-
-
-
-    /* =====================================================
-       DISPLAY SESSION ID
-       ===================================================== */
 
     document.getElementById(
       "session-id"
@@ -935,17 +702,7 @@
         ? token.slice(-8).toUpperCase()
         : "—";
 
-
-
-    /* =====================================================
-       LOGOUT FUNCTION
-       ===================================================== */
-
     function logout() {
-
-      /*
-       * Remove login information.
-       */
 
       sessionStorage.removeItem(
         "auth_token"
@@ -955,21 +712,10 @@
         "auth_user"
       );
 
-
-      /*
-       * Return to index.html.
-       */
-
       window.location.href =
         "index.html";
 
     }
-
-
-
-    /* =====================================================
-       CLOCK
-       ===================================================== */
 
     function updateClock() {
 
@@ -985,26 +731,14 @@
 
     }
 
-
-    /*
-     * Start clock.
-     */
-
     updateClock();
-
-
-    /*
-     * Update every second.
-     */
 
     setInterval(
       updateClock,
       1000
     );
 
-
   </script>
-
 
 </body>
 
