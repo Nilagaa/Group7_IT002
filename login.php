@@ -1,5 +1,5 @@
-```php
 <?php
+
 header('X-Robots-Tag: noindex, nofollow, noarchive');
 header('Content-Type: application/json');
 
@@ -7,16 +7,6 @@ require 'database.php';
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SCHEDULE = [15, 30, 60, 120, 1800];
-
-/*
- * Create login attempt table
- */
-$conn->query("CREATE TABLE IF NOT EXISTS login_attempts (
-    username VARCHAR(255) PRIMARY KEY,
-    fail_count INT NOT NULL DEFAULT 0,
-    locked_until DATETIME NULL,
-    last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)");
 
 /*
  * Only allow POST requests
@@ -51,6 +41,17 @@ if ($username === '' || $password === '') {
     exit;
 }
 
+/*
+ * Limit username length
+ */
+if (strlen($username) > 255) {
+    echo json_encode([
+        'success' => false,
+        'error' => 'Invalid username'
+    ]);
+    exit;
+}
+
 $lookup_key = strtolower($username);
 
 /*
@@ -58,19 +59,16 @@ $lookup_key = strtolower($username);
  */
 function lockout_seconds($fail_count)
 {
-    $idx = min($fail_count, count(LOCKOUT_SCHEDULE)) - 1;
+    $index = min(
+        max($fail_count, 1),
+        count(LOCKOUT_SCHEDULE)
+    ) - 1;
 
-    if ($idx < 0) {
-        $idx = 0;
-    }
-
-    return LOCKOUT_SCHEDULE[$idx];
+    return LOCKOUT_SCHEDULE[$index];
 }
 
 /*
- * Check previous login attempts
- *
- * Prepared statement prevents SQL injection.
+ * Check previous failed attempts
  */
 $stmt = $conn->prepare(
     "SELECT fail_count, locked_until
@@ -81,61 +79,56 @@ $stmt = $conn->prepare(
 if (!$stmt) {
     echo json_encode([
         'success' => false,
-        'error' => 'Database query error'
+        'error' => 'Database query error: ' . $conn->error
     ]);
     exit;
 }
 
 $stmt->bind_param('s', $lookup_key);
-$stmt->execute();
 
-/*
- * Use store_result instead of get_result
- * for compatibility with PHP installations
- * that do not have mysqlnd enabled.
- */
+if (!$stmt->execute()) {
+    echo json_encode([
+        'success' => false,
+        'error' => 'Database query error: ' . $stmt->error
+    ]);
+    $stmt->close();
+    exit;
+}
+
 $stmt->store_result();
 
-$attempt_row = null;
+$fail_count = 0;
+$locked_until = null;
 
 if ($stmt->num_rows > 0) {
-
     $stmt->bind_result(
-        $db_fail_count,
-        $db_locked_until
+        $fail_count,
+        $locked_until
     );
 
     $stmt->fetch();
 
-    $attempt_row = [
-        'fail_count' => $db_fail_count,
-        'locked_until' => $db_locked_until
-    ];
+    $fail_count = (int) $fail_count;
 }
 
 $stmt->close();
 
-$fail_count = $attempt_row
-    ? (int) $attempt_row['fail_count']
-    : 0;
+/*
+ * Check lockout status
+ */
+$now = time();
 
-$locked_until_ts =
-    ($attempt_row && $attempt_row['locked_until'])
-    ? strtotime($attempt_row['locked_until'])
+$locked_until_ts = $locked_until
+    ? strtotime($locked_until)
     : null;
 
-$now_ts = time();
-
-/*
- * Check if account is locked
- */
-if ($locked_until_ts !== null && $locked_until_ts > $now_ts) {
+if ($locked_until_ts !== null && $locked_until_ts > $now) {
 
     echo json_encode([
         'success' => false,
         'locked' => true,
         'error' => 'Too many failed attempts. Account locked.',
-        'retry_after' => $locked_until_ts - $now_ts,
+        'retry_after' => $locked_until_ts - $now,
         'attempts_remaining' => 0
     ]);
 
@@ -143,21 +136,21 @@ if ($locked_until_ts !== null && $locked_until_ts > $now_ts) {
 }
 
 /*
- * SECURE LOGIN QUERY
+ * Secure login query
  *
- * The username and password are parameters.
- * They cannot modify the SQL query.
+ * Prepared statement prevents SQL injection.
  */
 $stmt = $conn->prepare(
     "SELECT username, password, privilege_level
      FROM users
-     WHERE username = ? AND password = ?"
+     WHERE username = ? AND password = ?
+     LIMIT 1"
 );
 
 if (!$stmt) {
     echo json_encode([
         'success' => false,
-        'error' => 'Database query error'
+        'error' => 'Database query error: ' . $conn->error
     ]);
     exit;
 }
@@ -168,18 +161,22 @@ $stmt->bind_param(
     $password
 );
 
-$stmt->execute();
+if (!$stmt->execute()) {
+    echo json_encode([
+        'success' => false,
+        'error' => 'Database query error: ' . $stmt->error
+    ]);
+    $stmt->close();
+    exit;
+}
 
-/*
- * Use store_result instead of get_result
- */
 $stmt->store_result();
 
+/*
+ * Successful login
+ */
 if ($stmt->num_rows > 0) {
 
-    /*
-     * Get user information
-     */
     $stmt->bind_result(
         $db_username,
         $db_password,
@@ -199,7 +196,6 @@ if ($stmt->num_rows > 0) {
     );
 
     if ($clear) {
-
         $clear->bind_param(
             's',
             $lookup_key
@@ -214,8 +210,8 @@ if ($stmt->num_rows > 0) {
      */
     $log = $conn->prepare(
         "INSERT INTO attack_logs
-        (username, attack_type, attack_payload, success)
-        VALUES (?, ?, ?, ?)"
+         (username, attack_type, attack_payload, success)
+         VALUES (?, ?, ?, ?)"
     );
 
     if ($log) {
@@ -237,11 +233,9 @@ if ($stmt->num_rows > 0) {
     }
 
     /*
-     * Generate token
+     * Generate login token
      */
-    $token = base64_encode(
-        $username . ':' . time()
-    );
+    $token = bin2hex(random_bytes(32));
 
     echo json_encode([
         'success' => true,
@@ -250,100 +244,100 @@ if ($stmt->num_rows > 0) {
         'privilege' => $db_privilege
     ]);
 
-} else {
-
-    $stmt->close();
-
-    /*
-     * Failed login
-     */
-    $fail_count++;
-
-    $duration = lockout_seconds($fail_count);
-
-    $new_locked_until = date(
-        'Y-m-d H:i:s',
-        $now_ts + $duration
-    );
-
-    $locked_flag = $fail_count >= MAX_ATTEMPTS;
-
-    /*
-     * Update login attempt counter
-     */
-    $upsert = $conn->prepare(
-        "INSERT INTO login_attempts
-        (username, fail_count, locked_until)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            fail_count = ?,
-            locked_until = ?"
-    );
-
-    if ($upsert) {
-
-        $upsert->bind_param(
-            'sisis',
-            $lookup_key,
-            $fail_count,
-            $new_locked_until,
-            $fail_count,
-            $new_locked_until
-        );
-
-        $upsert->execute();
-        $upsert->close();
-    }
-
-    /*
-     * Log failed login
-     */
-    $log = $conn->prepare(
-        "INSERT INTO attack_logs
-        (username, attack_type, attack_payload, success)
-        VALUES (?, ?, ?, ?)"
-    );
-
-    if ($log) {
-
-        $attack_type = 'failed_login';
-        $payload = '';
-        $success = 0;
-
-        $log->bind_param(
-            'sssi',
-            $username,
-            $attack_type,
-            $payload,
-            $success
-        );
-
-        $log->execute();
-        $log->close();
-    }
-
-    /*
-     * Return failed login response
-     */
-    $response = [
-        'success' => false,
-        'error' => 'Invalid username or password.',
-        'locked' => $locked_flag,
-        'retry_after' => $duration,
-        'attempts_remaining' => max(
-            0,
-            MAX_ATTEMPTS - $fail_count
-        )
-    ];
-
-    if ($locked_flag) {
-        $response['error'] =
-            'Too many failed attempts. Account locked.';
-    }
-
-    echo json_encode($response);
+    $conn->close();
+    exit;
 }
+
+/*
+ * Invalid login
+ */
+$stmt->close();
+
+$fail_count++;
+
+$duration = lockout_seconds($fail_count);
+
+$new_locked_until = date(
+    'Y-m-d H:i:s',
+    $now + $duration
+);
+
+$locked_flag = $fail_count >= MAX_ATTEMPTS;
+
+/*
+ * Update login attempt counter
+ */
+$upsert = $conn->prepare(
+    "INSERT INTO login_attempts
+     (username, fail_count, locked_until)
+     VALUES (?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+        fail_count = ?,
+        locked_until = ?"
+);
+
+if ($upsert) {
+
+    $upsert->bind_param(
+        'sisis',
+        $lookup_key,
+        $fail_count,
+        $new_locked_until,
+        $fail_count,
+        $new_locked_until
+    );
+
+    $upsert->execute();
+    $upsert->close();
+}
+
+/*
+ * Log failed login
+ */
+$log = $conn->prepare(
+    "INSERT INTO attack_logs
+     (username, attack_type, attack_payload, success)
+     VALUES (?, ?, ?, ?)"
+);
+
+if ($log) {
+
+    $attack_type = 'failed_login';
+    $payload = '';
+    $success = 0;
+
+    $log->bind_param(
+        'sssi',
+        $username,
+        $attack_type,
+        $payload,
+        $success
+    );
+
+    $log->execute();
+    $log->close();
+}
+
+/*
+ * Return failed login response
+ */
+$response = [
+    'success' => false,
+    'error' => 'Invalid username or password.',
+    'locked' => $locked_flag,
+    'retry_after' => $duration,
+    'attempts_remaining' => max(
+        0,
+        MAX_ATTEMPTS - $fail_count
+    )
+];
+
+if ($locked_flag) {
+    $response['error'] =
+        'Too many failed attempts. Account locked.';
+}
+
+echo json_encode($response);
 
 $conn->close();
 ?>
-```
