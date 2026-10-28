@@ -4,7 +4,9 @@
 
 [functions]
   node_bundler = "esbuild"
-
+[[edge_functions]]
+  path = "/*"
+  function = "rate-limit"
 # Cache static pages at the CDN so floods mostly hit cache, not origin
 [[headers]]
   for = "/*.html"
