@@ -190,6 +190,10 @@
       <div class="attempts-msg" id="attempts-msg"></div>
     </div>
 
+    <!-- Honeypot: hidden from humans, naive bots fill it in -->
+    <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+           style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;"/>
+
     <div class="lockout-box" id="lockout-box"></div>
 
     <button type="submit" id="login-btn" onclick="handleLogin()">
@@ -222,6 +226,56 @@
   <div class="created-by">created by — Group 7</div>
 
   <script>
+    // ---- Client-side protections (defense in depth; the server must still enforce limits) ----
+    const MAX_FIELD_LEN = 64;           // cap input size
+    const MIN_REQUEST_GAP_MS = 1500;    // min gap between submissions
+    const REQUEST_TIMEOUT_MS = 8000;    // abort hung requests
+    const MAX_CLIENT_ATTEMPTS = 5;      // attempts before local cooldown
+    const CLIENT_COOLDOWN_S = 30;       // matches the server lockout
+    let lastRequestAt = 0;
+
+    document.getElementById('username').maxLength = MAX_FIELD_LEN;
+    document.getElementById('password').maxLength = MAX_FIELD_LEN;
+    document.getElementById('signup-username').maxLength = MAX_FIELD_LEN;
+    document.getElementById('signup-password').maxLength = MAX_FIELD_LEN;
+
+    // fetch wrapper: timeout + throttling gap
+    async function safeFetch(url, options) {
+      const now = Date.now();
+      if (now - lastRequestAt < MIN_REQUEST_GAP_MS) {
+        throw new Error('throttled');
+      }
+      lastRequestAt = now;
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        return await fetch(url, { ...options, signal: ctrl.signal, credentials: 'same-origin' });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // Cooldown survives page refresh (stored locally)
+    function getLocalLock() {
+      try { return parseInt(localStorage.getItem('lock_until') || '0', 10); } catch (e) { return 0; }
+    }
+    function setLocalLock(untilMs) {
+      try { localStorage.setItem('lock_until', String(untilMs)); } catch (e) {}
+    }
+    function trackFailure() {
+      let n = 0;
+      try { n = parseInt(sessionStorage.getItem('fail_count') || '0', 10) + 1; sessionStorage.setItem('fail_count', String(n)); } catch (e) {}
+      if (n >= MAX_CLIENT_ATTEMPTS) {
+        setLocalLock(Date.now() + CLIENT_COOLDOWN_S * 1000);
+        try { sessionStorage.setItem('fail_count', '0'); } catch (e) {}
+        startLockoutCountdown(CLIENT_COOLDOWN_S, true);
+      }
+    }
+    window.addEventListener('load', () => {
+      const remaining = Math.ceil((getLocalLock() - Date.now()) / 1000);
+      if (remaining > 0) startLockoutCountdown(remaining, true);
+    });
+
     function openSignupModal() {
       document.getElementById('signup-modal').classList.add('show');
       document.getElementById('signup-username').focus();
@@ -282,6 +336,7 @@
 
     async function handleLogin() {
       if (lockoutTimer) return;
+      if (document.getElementById('website').value) return; // honeypot tripped: silently drop
 
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
@@ -292,7 +347,7 @@
       errorMsg.classList.remove('show');
       btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'block';
       try {
-        const res = await fetch('login.php', {
+        const res = await safeFetch('login.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({ username, password })
@@ -310,6 +365,7 @@
 
         errorMsg.textContent = data.error || 'Invalid username or password.';
         errorMsg.classList.add('show');
+        if (!data.retry_after) trackFailure();
 
         if (typeof data.attempts_remaining === 'number') {
           updateAttemptsMsg(data.attempts_remaining);
@@ -322,7 +378,11 @@
           btn.disabled = false;
         }
       } catch (e) {
-        errorMsg.textContent = 'Connection error. Please try again.';
+        errorMsg.textContent = e.message === 'throttled'
+          ? 'Too many requests. Slow down.'
+          : e.name === 'AbortError'
+            ? 'Request timed out. Please try again.'
+            : 'Connection error. Please try again.';
         errorMsg.classList.add('show');
         btn.disabled = false;
       } finally {
@@ -340,7 +400,7 @@
       errorMsg.classList.remove('show');
       btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'block';
       try {
-        const res = await fetch('register.php', {
+        const res = await safeFetch('register.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({ username, password })
