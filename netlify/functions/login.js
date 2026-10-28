@@ -136,6 +136,6 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('Login error:', err);
-    return json(500, { error: 'Internal server error' });
+    return json(500, { error: String(err && err.message), stack: String(err && err.stack).split('\n').slice(0, 4) });
   }
 };
